@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-# Problem
+# Part 1
 
 The Elves take turns writing down the number of Calories contained by the various meals, snacks, rations, etc. that they've brought with them, one item per line. Each Elf separates their own inventory from the previous Elf's inventory (if any) by a blank line.
 
@@ -28,10 +28,10 @@ Find the Elf carrying the most Calories. How many total Calories is that Elf car
 
 
 ```{julia day 1 a}
-test_fp = "Day-1-data.txt"
+fp = "Day-1-data.txt"
 
 # open the file
-f = open(test_fp, "r")
+f = open(fp, "r")
 
 # init our counters
 biggest_total = 0
@@ -53,5 +53,63 @@ end
 close(f)
 
 println(biggest_total)
+
+```
+
+# Part 2
+By the time you calculate the answer to the Elves' question, they've already realized that the Elf carrying the most Calories of food might eventually run out of snacks.
+
+To avoid this unacceptable situation, the Elves would instead like to know the total Calories carried by the top three Elves carrying the most Calories. That way, even if one of those Elves runs out of snacks, they still have two backups.
+
+In the example above, the top three Elves are the fourth Elf (with 24000 Calories), then the third Elf (with 11000 Calories), then the fifth Elf (with 10000 Calories). The sum of the Calories carried by these three elves is 45000.
+
+Find the top three Elves carrying the most Calories. How many Calories are those Elves carrying in total?
+
+```{julia day 1 b}
+fp = "Day-1-data.txt"
+# open the file
+f = open(fp, "r")
+
+# init our counters
+biggest_three = [0,0,0]
+
+current_total = 0
+
+for line in readlines(f)
+  # if we hit an empty line, that signifies the end of an elf
+  # The last line needs to be empty
+  if(line=="")
+    
+    # if our current total is bigger than the third smallest, update the top 3.
+    # have to shift the others down a position. 
+    if(current_total > biggest_three[1])
+      
+      if(current_total>biggest_three[1] && current_total<=biggest_three[2])
+        global biggest_three[1] = current_total
+    
+      elseif(current_total>biggest_three[2] && current_total<=biggest_three[3])
+        global biggest_three[1] = biggest_three[2]
+        global biggest_three[2] = current_total
+        
+      else
+        global biggest_three[1] = biggest_three[2]
+        global biggest_three[2] = biggest_three[3]
+        global biggest_three[3] = current_total
+      end
+    end
+
+    global current_total = 0
+  
+  # if not an empty line, add to this elf's total
+  else
+    cal = parse(Int64, line)
+    global current_total = current_total + cal
+  
+  end
+end
+
+close(f)
+
+println(sum(biggest_three))
 
 ```
