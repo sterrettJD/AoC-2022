@@ -40,13 +40,16 @@ function points_for_choice(p2, mapper)
     return mapper[p2]
 end
 
-filepath = "Day-2-data.txt";
+
+
+filepath = "Day-2-test.txt";
 
 f = open(filepath, "r");
 
 curr_total = 0
 
 for line in readlines(f)
+    # part 1
     p1 = SubString(line,1:1)
     p2 = SubString(line, 3:3)
 
@@ -54,6 +57,61 @@ for line in readlines(f)
     global curr_total += win_or_loss(p1, p2, mapper)
 
 end
+
+println("Player 2 received ", curr_total, " points.")
+close(f)
+
+
+
+
+outcome_mapper = Dict("X"=>0,
+                    "Y"=>3,
+                    "Z"=>6)
+
+function outcome_to_points(outcome, mapper)
+    return mapper[outcome]   
+end
+
+
+function choose_response(p1, outcome, mapper)
+    # our 3 options here are to draw, win, or lose
+    # if it's draw, we just return what the opponent did
+    # otherwise, we can increment to the next choice to win
+    # e.g., p1 = rock (1), p2 is incremented to scissors (2) to win
+    # if we increment by 2, we get back to the loss condition
+    
+    # draw
+    if (outcome=="Y")
+        return mapper[p1]
+    end
+
+    # win
+    if (outcome=="Z")
+        return (mapper[p1]+1) % 3
+    end
+    # loss
+    if (outcome=="X")
+        return (mapper[p1]+2) % 3
+    end
+    
+end
+
+f = open(filepath, "r");
+
+curr_total = 0
+
+for line in readlines(f)
+    # part 2
+    p1 = SubString(line,1:1)
+    outcome = SubString(line, 3:3)
+
+    global curr_total += outcome_to_points(outcome, outcome_mapper)
+    println(outcome_to_points(outcome, outcome_mapper), " from outcome ", outcome)
+    global curr_total += choose_response(p1, outcome, mapper)
+    println(choose_response(p1, outcome, mapper), " from response.")
+
+end
+
 
 println("Player 2 received ", curr_total, " points.")
 close(f)
