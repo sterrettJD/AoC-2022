@@ -42,7 +42,7 @@ end
 
 
 
-filepath = "Day-2-test.txt";
+filepath = "Day-2-data.txt";
 
 f = open(filepath, "r");
 
@@ -87,11 +87,11 @@ function choose_response(p1, outcome, mapper)
 
     # win
     if (outcome=="Z")
-        return (mapper[p1]+1) % 3
+        return (mapper[p1] % 3) + 1
     end
     # loss
     if (outcome=="X")
-        return (mapper[p1]+2) % 3
+        return ((mapper[p1]+ 1) % 3) + 1
     end
     
 end
@@ -106,7 +106,8 @@ for line in readlines(f)
     outcome = SubString(line, 3:3)
 
     global curr_total += outcome_to_points(outcome, outcome_mapper)
-    println(outcome_to_points(outcome, outcome_mapper), " from outcome ", outcome)
+    println(outcome_to_points(outcome, outcome_mapper), 
+            " from outcome ", outcome, " to ", p1)
     global curr_total += choose_response(p1, outcome, mapper)
     println(choose_response(p1, outcome, mapper), " from response.")
 
