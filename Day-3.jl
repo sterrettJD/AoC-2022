@@ -43,3 +43,54 @@ end
 println(total)
 
 close(f)
+
+
+
+# Part 2
+
+function find_common(l1, l2, l3)
+    for c in l1
+        if occursin(c, l2)
+            if occursin(c, l3)
+                return c
+            end
+        end
+    end
+end
+
+
+f = open(filepath, "r")
+
+
+line_counter = 1 
+total = 0 
+
+prev_line = ""
+prev_prev_line = ""
+
+for line in readlines(f)
+    if line_counter > 2
+        if line_counter % 3 ==0 
+            println(line, " ", prev_line, " ", prev_prev_line)
+            badge = find_common(line, prev_line, prev_prev_line)
+            println(badge)
+            global total += letter_to_priority(badge)
+
+        end
+        
+        prev_prev_line = prev_line
+        prev_line = line
+
+    elseif line_counter==2
+        global prev_line = line
+    elseif line_counter==1
+        global prev_prev_line = line
+    end
+
+    global line_counter += 1
+
+end
+
+println(total)
+
+close(f)
