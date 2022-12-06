@@ -1,5 +1,30 @@
 using DataStructures
 
+function construct_array(array, line)
+    if contains(line, "[")
+        for index in 1:9
+            #println(index, line[index*4-2])
+            if line[index*4-2] != ' '
+                push!(array[index], line[index*4-2])
+            end
+        end
+    end
+    return array
+end
+
+function construct_stacks(constructor_array, stack_vector)
+# This is where we create our stacks to be used
+# have to go over the vector with the data in reverse
+    for i in 1:9
+        for crate in Iterators.reverse(constructor_array[i])
+            push!(stack_vector[i], crate)
+        end
+    end
+    return stack_vector
+end
+
+
+
 function crane(stack_vector, num, from, to)
     for i in 1:num
         crate = pop!(stack_vector[from])
@@ -40,14 +65,7 @@ stacks_fully_constructed = false
 
 for line in readlines(f)
     # constructing
-    if contains(line, "[")
-        for index in 1:9
-            #println(index, line[index*4-2])
-            if line[index*4-2] != ' '
-                push!(constructor[index], line[index*4-2])
-            end
-        end
-    end
+    global constructor = construct_array(constructor, line)
 
     if stacks_fully_constructed
         # parse "move N from A into B"
@@ -65,14 +83,8 @@ for line in readlines(f)
     
     
     if line==""
-        # This is where we create our stacks to be used
-        # have to go over the vector with the data in reverse
-        for i in 1:9
-            for crate in Iterators.reverse(constructor[i])
-                push!(stack_vector[i], crate)
-                push!(part_2_stack_vector[i], crate)
-            end
-        end
+        global stack_vector = construct_stacks(constructor, stack_vector)
+        global part_2_stack_vector = construct_stacks(constructor, part_2_stack_vector)
 
         global stacks_fully_constructed = true
         println("STACK FULLY CONSTRUCTED")
@@ -90,10 +102,11 @@ for stack in stack_vector
     print(first(stack))
 end
 
+println()
+
 println("Top crates for part 2 are: ")
 for stack in part_2_stack_vector
     print(first(stack))
 end
 
 println()
-
