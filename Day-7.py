@@ -6,6 +6,8 @@ class Node:
         self.parent = parent
 
     def update_subdirectories(self, subdir_name, subdir_node):
+        # Need this because python is assuming it's a list if I don't make the 
+        # dict as such
         if len(self.subdirectories)==0:
             self.subdirectories = {subdir_name: subdir_node}
 
@@ -16,19 +18,6 @@ class Node:
 class Tree:
     def __init__(self, root):
         Tree.root = root
-    
-    def contains_helper(self, node:Node, node_name):
-        if len(node.subdirectories)==0:
-            return node.name==node_name
-                
-
-        for child in node.subdirectories.values():
-            found = self.contains_helper(child, node_name)
-        
-        return found
-
-    def contains(self, node_name):
-        self.contains_helper(self.root, node_name)
     
     def get_sizes_under_thresh_helper(self, node, curr_total, sizes_list):
         subdirs = node.subdirectories.values()
@@ -70,7 +59,7 @@ def collect_ls_output(data, start_line):
         
 
 def parse_input(data):
-
+    # assumes data has 2 empty lines at end. Sorry, I don't make the rules :)
     this_tree = Tree(Node("/", [], [], None))
     curr_node = this_tree.root
 
@@ -82,10 +71,8 @@ def parse_input(data):
                 curr_node = curr_node.parent
             else: 
                 curr_node = curr_node.subdirectories[new_node]
-            print(f"moved to {new_node}")
 
         if line.startswith("$ ls"):
-            print(f"Listing contents of {curr_node.name}")
             # have to use i+1 to increment to next line
             # and we want the next line(s), not our current
             output = collect_ls_output(data[1:], i+1)
@@ -95,26 +82,21 @@ def parse_input(data):
                 # handle a new directory
                 if out_line.startswith("dir"):
                     subdir = out_line.split(" ")[-1]
-                    
-                    if this_tree.contains(subdir):
-                        print("NODE ALREADY EXISTS")
-                    
-                    else:
-                        print(f"MAKING NODE {subdir}")
-                        created_node = Node(subdir, 
-                                            subdirectories=dict(),
-                                            file_sizes=[],
-                                            parent=curr_node)
-                        # doing this to specify it's a dict not a list
-                        curr_node.update_subdirectories(subdir, created_node)
+                
+                    created_node = Node(subdir, 
+                                        subdirectories=dict(),
+                                        file_sizes=[],
+                                        parent=curr_node)
+
+                    curr_node.update_subdirectories(subdir, created_node)
 
                 # handle a new file size
                 else:
                     size = int(out_line.split(" ")[0])
-                    print(size)
                     curr_node.file_sizes.append(size)
 
-            print(f"{curr_node.name} contains {curr_node.subdirectories.keys()}")
+            # print(f"{curr_node.name} contains",
+            #      f"subdirectories {list(curr_node.subdirectories.keys())}")
     return this_tree
     
 
@@ -125,20 +107,20 @@ def solution(file, threshold, size_needed):
     
     tree = parse_input(data)
     sizes_under = tree.get_sizes_under_thresh()
-    print(sum([x for x in sizes_under if x < threshold]))
+    print("Part 1 answer: ",
+          sum([x for x in sizes_under if x < threshold]))
 
     total = sizes_under[-1] 
     curr_remaining = 70000000 - total
     min_size = size_needed - curr_remaining
     print(f"Minimum file size needed to be deleted: {min_size}")
     print("Size of smallest file over that limit:", 
-          min([x for x in sizes_under if x > min_size]))
+          min([x for x in sizes_under if x > min_size]),
+          " (Part 2 answer)")
 
 
 
 if __name__=="__main__":
-    print("Running")
-
     my_node = Node("/", [], [], None)
     Tree(my_node)
 
