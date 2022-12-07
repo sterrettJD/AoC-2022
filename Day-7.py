@@ -119,7 +119,7 @@ def parse_input(data):
     
 
 
-def solution(file, threshold):
+def solution(file, threshold, size_needed):
     with open(file, "r") as f:
         data = [x.strip() for x in f.readlines()]
     
@@ -127,7 +127,12 @@ def solution(file, threshold):
     sizes_under = tree.get_sizes_under_thresh()
     print(sum([x for x in sizes_under if x < threshold]))
 
-    print(min([x for x in sizes_under if x > size_needed]))
+    total = sizes_under[-1] 
+    curr_remaining = 70000000 - total
+    min_size = size_needed - curr_remaining
+    print(f"Minimum file size needed to be deleted: {min_size}")
+    print("Size of smallest file over that limit:", 
+          min([x for x in sizes_under if x > min_size]))
 
 
 
@@ -140,5 +145,5 @@ if __name__=="__main__":
     test = "Day-7-data.txt"
     threshold = 100000
     size_needed = 30000000
-    solution(test, threshold)
+    solution(test, threshold, size_needed)
 
