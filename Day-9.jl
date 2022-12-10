@@ -1,3 +1,10 @@
+# After doing part 2, I could use my new functions to complete part 1 
+# in a much more concise manner.
+# But I don't feel like making those changes right now.
+# We will have long, and easy to read code for part 1.
+# Part 2 is maybe shorter and easier to read code... 
+# Demonstrates the learning process :)
+
 function move_1(h_x, h_y, 
                 t_x, t_y, 
                 sign # should be 1 or -1
