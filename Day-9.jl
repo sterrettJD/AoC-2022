@@ -78,6 +78,73 @@ function full_move(h_x, h_y, t_x, t_y,
 end
 
 
+function update_first_two(h_x, h_y, t_x, t_y,
+                          direction)
+    if direction=='R'
+        h_x, h_y, t_x, t_y = move_1(h_x, h_y, t_x, t_y,
+                                    1)
+    elseif direction=='L'
+        h_x, h_y, t_x, t_y = move_1(h_x, h_y, t_x, t_y,
+                                    -1)
+    elseif direction=='U'
+        h_y, h_x, t_y, t_x = move_1(h_y, h_x, t_y, t_x,
+                                    1)
+    elseif direction=='D'
+        h_y, h_x, t_y, t_x = move_1(h_y, h_x, t_y, t_x,
+                                    -1)
+    end
+
+    return [h_x, h_y], [t_x, t_y]
+end
+
+function get_move_dist(diff)
+    if diff==0
+        return 0
+    end
+
+    return diff/abs(diff)
+end
+
+function update_next_knot(h_x, h_y, t_x, t_y)
+    diff_x = h_x - t_x
+    diff_y = h_y - t_y
+
+    
+    to_move_x = get_move_dist(diff_x)
+    to_move_y = get_move_dist(diff_y)
+    
+
+    if (diff_x^2 + diff_y^2) <= 2
+        return t_x, t_y
+    end
+
+    new_t_x = t_x + to_move_x
+    new_t_y = t_y + to_move_y
+
+    return new_t_x, new_t_y
+    
+    
+end
+
+function update_long_rope(coords::Vector{Vector{Int}}, direction, distance)
+    tail_coords = Vector{Vector{Int}}()
+    for _ in 1:distance
+        
+        coords[1], coords[2] = update_first_two(coords[1][1], coords[1][2], 
+                                                coords[2][1], coords[2][2], 
+                                                direction)
+
+        for knot in 2:length(coords)-1
+            new_t_x, new_t_y= update_next_knot(coords[knot][1], coords[knot][2], 
+                                               coords[knot+1][1], coords[knot+1][2])
+
+            coords[knot+1] = Vector([new_t_x, new_t_y])
+        end
+        push!(tail_coords, coords[10])
+    end
+    return coords, tail_coords
+end
+
 
 function solution(file)
     f = open(file)
@@ -102,8 +169,35 @@ function solution(file)
     println("Number of unique coordinates of tail: ",
             length(unique(coords)))
 
+end
+
+function solution_2(file)
+    f = open(file)
+
     
+    h_x = h_y = t_x = t_y = 0
+    coords = [[h_x, h_y] for _ in 1:10]
+    all_tail_coords = Vector{Vector{Int}}()
+
+    i = 0
+
+    for line in readlines(f)
+        direction = line[1]
+        distance = parse(Int, line[3:length(line)])
+
+        coords, tail_coords = update_long_rope(coords, 
+                                               direction, 
+                                               distance)
+        all_tail_coords = vcat(all_tail_coords, tail_coords)    
+
+    end
+    close(f)
+
+    println("Number of unique coordinates of tail: ",
+            length(unique(all_tail_coords)))
+
 end
 
 
 solution("Day-9-data.txt")
+solution_2("Day-9-data.txt")
