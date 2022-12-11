@@ -1,23 +1,11 @@
-mutable struct Addx
-    value::Int
-    remaining::Int
-end
-
-function update_addx_remaining(Addx)
-    Addx.remaining -= 1
-    return Addx.remaining
-end
-
-function parse_line(line, to_add)
+function parse_line(line, x, cycle_num)
     if line=="noop"
-        return to_add
+        return x, cycle_num+1
     end
-    
-    new_add = parse(Int, line[5:length(line)])
-    new_addx = Addx(new_add, 1)
-    push!(to_add, new_addx)
 
-    return to_add
+    new_add = parse(Int, line[5:length(line)])
+    x += new_add
+    return x, cycle_num+2
 end
 
 function run_cycle(x, to_add)
@@ -37,28 +25,48 @@ function run_cycle(x, to_add)
     return x, to_add
 end
 
+function check_strength(cycle_num, 
+                        to_check, curr_check_index, checkpoint_strengths, 
+                        x)
+    if cycle_num in to_check[curr_check_index]-1:to_check[curr_check_index]
+        strength = to_check[curr_check_index] * x
+        println("Cycle: ", cycle_num, 
+                ", x=", x, 
+                ", strength=", strength)
+
+        push!(checkpoint_strengths, strength)
+
+        curr_check_index = min(curr_check_index + 1, length(to_check))
+    end
+    return checkpoint_strengths, curr_check_index
+end
+
 
 function solution(file)
     x = 1
-    to_add = Vector{Addx}()
+    to_check = [20, 60, 100, 140, 180, 220]
+    curr_check_index = 1
+
+    checkpoint_strengths = Vector{Int}()
 
     f = open(file)
 
     cycle_num = 1
     for line in readlines(f)
-        println(line)
-        to_add = parse_line(line, to_add)
-        x, to_add = run_cycle(x, to_add)
+        #println(line)
+        x, cycle_num = parse_line(line, x, cycle_num)
+        #x, to_add = run_cycle(x, to_add)
 
-        if cycle_num % 20 == 0
-            println(x)
-        end
-
-        println(x)
-        println(to_add)
-        cycle_num += 1
+        checkpoint_strengths, curr_check_index = check_strength(cycle_num,
+                                                                to_check, 
+                                                                curr_check_index, 
+                                                                checkpoint_strengths, 
+                                                                x)
     end
     close(f)
+
+    println("Sum of checkpoint strengths is ", sum(checkpoint_strengths))
 end
 
 solution("Day-10-test.txt")
+solution("Day-10-data.txt")
